@@ -27,12 +27,14 @@ namespace Bacud_MidtermGame
             int turnCounter = 1;
             int enemyChoice = 0;
             Random rnd = new Random();
+            string enemyGameOver = null;
+            int levelGameOver = 0;
 
             // ENEMY INFORMAITON -> DONE IN ORDER FOR VARIABLES TO BE ACCESSED BY EVERY SINGLE FUNCTION PRESENT IN THE CODE (GLOBAL VARIABLE)
 
             int enemyATK = 0;
             int enemyHP = 0;
-            List<string> enemyPool = new List<string> { "Storm", "Janice", "Alice", "Raiden", "Bryan", "Mist", "Shadow", "Sun", "Gabe", "Xavier", "Vaughn", "Louis", "Minor", "Nicholas"};
+            List<string> enemyPool = new List<string> { "Storm", "Janice", "Alice", "Stan", "Jid", "Mist", "Shadow", "Arnosky", "Gabe", "Xavier", "Vaughn", "Louis", "Minor", "Nichdoman", "Ashomon"};
 
             // STARTING PROMPT
 
@@ -50,18 +52,39 @@ namespace Bacud_MidtermGame
 
                 if (playerName.Length > 0)
                 {
-                    break;
+                    try
+                    {
+                        Console.Clear();
+                        Console.WriteLine("= = = = = = = = = = = = = = = = = = = = = = ");
+                        Console.WriteLine("        G A M B L E R ' S  R P G");
+                        Console.WriteLine("= = = = = = = = = = = = = = = = = = = = = = \n");
+
+                        Console.Write($"Are you sure you want {playerName} as your character name?\n");
+                        Console.Write("[1] Yes [2] No\n\n");
+
+                        int nameChoice = int.Parse(Console.ReadLine());
+
+                        if (nameChoice == 1)
+                        {
+                            break;
+                        }
+
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Error: Please input a valid choice");
+                        Console.WriteLine("Input any key to continue...");
+                        Console.ReadKey();
+                    }
                 }
 
                 else
                 {
-                    Console.Clear();
-                    Console.WriteLine("= = = = = = = = = = = = = = = = = = = = = = ");
-                    Console.WriteLine("        G A M B L E R ' S  R P G");
-                    Console.WriteLine("= = = = = = = = = = = = = = = = = = = = = = \n");
-
-
-                    Console.WriteLine("Error: Please input a valid username");
+                    Console.WriteLine("\nError: Please input a valid username");
                     Console.WriteLine("Input any key to continue...");
                     Console.ReadKey();
                 }
@@ -79,7 +102,7 @@ namespace Bacud_MidtermGame
             Console.Write($"Name: {playerName}\n");
             Console.Write($"HP : {healthPoints}\n\n");
 
-            Console.Write("Mechanics:\n");
+            Console.Write("Game Mechanics:\n");
             Console.Write("* All additional stats, like ATK, will be randomized per turn\n");
             Console.Write("* All actions are affected by chance, with the following effects:\n\n");
             Console.Write("\t* Attack may miss, hit, or have a critical strike on the enemy\n");
@@ -111,9 +134,11 @@ namespace Bacud_MidtermGame
 
                 string levelEnemy = enemyPool[(rnd.Next(0, enemyPool.Count))];
                 attackPoints = rnd.Next(1, 21);
-                enemyATK = rnd.Next(1, 21);
+                enemyATK = rnd.Next(5, 21);
                 enemyHP = rnd.Next(50, 101);
                 int maxenemyHP = enemyHP; // -> DONE FOR FUTURE USE
+                levelGameOver = levelCounter;
+                enemyGameOver = levelEnemy;
 
                 // STAT DISPLAY
 
@@ -333,26 +358,12 @@ namespace Bacud_MidtermGame
 
                                             if (userConfirmation == 1)
                                             {
-                                                int diceRoller = rnd.Next(1, 5); // CHANCE ROLLER (FLEEING A BATTLE IS 25% SUCCESSFUL) -> DONE FOR BALANCE
-
-                                                switch (diceRoller) 
-                                                {
-                                                    case 1:
-                                                    case 2:
-                                                    case 3:
-                                                        Console.WriteLine("\nFlee has failed..."); // IF IT ROLLS 1-3, FLEE ACTION WILL FAIL AND SKIP THE PLAYER'S TURN
-                                                        actionOngoing = false;
-                                                        Console.ReadKey();
-                                                        break;
-
-                                                    case 4:
-                                                        Console.WriteLine($"\nFlee Successful! You have ran away from {levelEnemy}"); // IF IT ROLLS 4, FLEE BECOMES SUCCESSFUL AND SKIPS TO NEXT LEVEL
-                                                        flee = true;
-                                                        actionOngoing = false;
-                                                        Console.ReadKey();
-                                                        break;
-                                                    }
+                                                int diceRoller = rnd.Next(1, 5); 
+                                                Console.WriteLine($"\nFlee Successful! You have ran away from {levelEnemy}");
+                                                flee = true;
+                                                actionOngoing = false;
                                             }
+
 
                                             else if (userConfirmation == 2) // IF USER ISN'T SURE, GOES BACK TO INITIAL CHOICE / MOVE SELECTION MENU
                                             {
@@ -398,9 +409,9 @@ namespace Bacud_MidtermGame
 
                     } // END OF PLAYER TURN WHILE LOOP
 
-                    if (flee) // CHECKS IF FLEE IS SUCCESSFUL AND IF IT IS, SKIPS TO NEXT LEVEL. OTHERWISE, DOES NOTHING
+                    if (flee) // CHECKS IF FLEE IS DONE, GG EZ
                     {
-                        levelCounter++;
+                        hasHealth = false;
                         break;
                     }
 
@@ -431,8 +442,8 @@ namespace Bacud_MidtermGame
                             {
                                 continue;
                             }
-                        }
-                        break;
+                        } 
+                        break; 
                     }
                     
                     switch (enemyChoice) // ENEMY ACTIONS
@@ -514,7 +525,6 @@ namespace Bacud_MidtermGame
                 else // RESETS IMPORTANT VARIABLES IN ORDER TO INITIATE PREVIOUS LOOPS
                 {
                     matchProgress = true;
-                    flee = false;
                     playerTurn = true;
                     turnCounter = 1;
                     continue;
@@ -532,14 +542,22 @@ namespace Bacud_MidtermGame
 
             if (!hasHealth) // IF GAME HAS ENDED DUE TO LOSS OF HEALTH
             {
-                Console.Write("GAME OVER!\n");
-                Console.Write("You have died #SkillIssue \n");
+                if (flee)
+                {
+                    Console.Write("GAME OVER!\n");
+                    Console.Write($"You have fled from {enemyGameOver} at Level {levelGameOver} #SkillIssue \n\n");
+                }
+                else
+                {
+                    Console.Write("GAME OVER!\n");
+                    Console.Write("You have died due to #SkillIssue \n\n");
+                }   
             }
 
             else // IF GAME HAS BEEN BEATEN LEGITIMATELY
             {
                 Console.Write("GAME OVER!\n");
-                Console.Write("You have triumphantly conquered 3 levels and cleared Gambler's RPG \n");
+                Console.Write("You have triumphantly conquered 3 levels and cleared Gambler's RPG \n\n");
             }
         }
     }
